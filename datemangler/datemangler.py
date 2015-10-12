@@ -1,12 +1,14 @@
 #!/usr/bin/python
+# coding: utf-8
 
 import os
 import xattr
-import struct
-import getpass
-import argparse
 
-from StringIO import StringIO
+try:
+	from StringIO import StringIO
+except ImportError:
+	from io import StringIO
+
 from Crypto.Cipher import AES
 
 
@@ -14,35 +16,35 @@ class DateMangler:
 
 	def listdir_recursive(self, path, depth = -1):
 		files = []
-		
+
 		if depth == 0: return files
-		
+
 		try:
 			for entry in os.listdir(path):
 				current = os.path.join(path, entry)
-				
+
 				if os.path.isfile(current):
 					files.append(current)
-					
+
 				elif os.path.isdir(current):
 					files += listdir_recursive(current, depth = depth - 1)
-		
+
 		except OSError:
 			# ignore directories for which we don't have permission
 			pass
-			
+
 		return files
 
 
 	def available_space(self, path, depth = -1):
 		return 4 * len(listdir_recursive(path, depth = depth))
-		
+
 
 	def padding(self, secret, blocksize = 32, padding = '!'):
 		if not len(secret) in (16, 24, 32):
 			return secret + (blocksize - len(secret)) * padding
 		return secret
-		
+
 
 	def encrypt(self, plaintext, secret):
 		enc = AES.new(self.padding(secret), AES.MODE_CFB, IV = self.padding(secret, blocksize = 16))
@@ -63,12 +65,12 @@ class DateMangler:
 	def read(self, file, password):
 		attributes = xattr.xattr(file)
 		return self.decrypt(attributes.get("system.ntfs_crtime")[-4:], password)
-	
-	
+
+
 	def read_directory(self, path, password):
 		return "".join([self.read(x, password) for x in filter(lambda x: os.path.isfile(os.path.join(path, x)), os.listdir(path))])
-	
-	
+
+
 	def write_directory(self, path, bytes, password):
 		buffer = StringIO(bytes)
 		for file in filter(lambda x: os.path.isfile(os.path.join(path, x)), os.listdir(path)):
@@ -77,32 +79,3 @@ class DateMangler:
 				break
 
 			self.write(file, self.padding(b, blocksize = 4, padding = " "), password)
-
-if __name__ == "__main__":
-	parser = argparse.ArgumentParser(description = "Hide and retrieve data in NTFS timestamps. If no input is given, the program reads from standard input.")
-	parser.add_argument("mode", choices = ["read", "write"], help = "read or write data to a file or directory of files")
-	parser.add_argument("path", help = "single file or directory of files")
-	parser.add_argument("-R", dest = "recursive", action = "store_true", help = "handle directories recursively")
-	parser.add_argument("-i", dest = "input", help = "input to be hidden")
-	args = vars(parser.parse_args())
-	
-	dm = DateMangler()
-	
-	if (args["mode"] == "read"):
-		
-		if (os.path.isfile(args["path"])):
-			print dm.read(args["path"], getpass.getpass()) 
-		
-		elif (os.path.isdir(args["path"])):
-			print dm.read_directory(args["path"], getpass.getpass())
-	
-	else:
-		
-		if (os.path.isfile(args["path"])):
-			print dm.write(args["path"], args["input"], getpass.getpass()) 
-		
-		else:
-			print dm.write_directory(args["path"], args["input"], getpass.getpass())
-	
-
-
