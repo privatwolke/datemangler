@@ -1,5 +1,5 @@
-date-mangler
-============
+datemangler
+===========
 
 This script modifies the last four bits of an NTFS timestamp to hide information.
 Data entered is encrypted with AES.
@@ -34,16 +34,16 @@ Usage example
 	$ for i in {0..100}; do touch $i; done
 
 	# write to a single file
-	$ date-mangler -i "helo" write 0
+	$ datemangler -i "helo" write 0
 
 	# read again
-	$ date-mangler read 0
+	$ datemangler read 0
 
 	# write more text to a directory of files
-	$ date-mangler -i "hello world, how are you?" write .
+	$ datemangler -i "hello world, how are you?" write .
 
 	# read again
-	$ date-mangler read .
+	$ datemangler read .
 
 
 Notes
