@@ -4,7 +4,7 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '0.2'
+version = '0.2.1'
 
 setup(name = 'datemangler',
 	version = version,
@@ -23,7 +23,7 @@ setup(name = 'datemangler',
 		'Topic :: Utilities'
 	],
 	author = 'Stephan Klein',
-	url = 'https://github.com/privatwolke/date-mangler',
+	url = 'https://github.com/privatwolke/datemangler',
 	license = 'MIT',
 	packages = ['datemangler'],
 	install_requires = ['xattr', 'pycrypto'],
@@ -33,7 +33,7 @@ setup(name = 'datemangler',
 	zip_safe = True,
 	entry_points = {
 		'console_scripts': [
-			'date-mangler = datemangler.__main__:main'
+			'datemangler = datemangler.__main__:main'
 		]
 	}
 )

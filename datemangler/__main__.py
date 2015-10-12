@@ -12,7 +12,7 @@ try:
 except ImportError:
 	from io import StringIO
 
-from datemangler.datemangler import DateMangler
+from datemangler import DateMangler
 
 def main():
 	parser = argparse.ArgumentParser(description = "Hide and retrieve data in NTFS timestamps. If no input is given, the program reads from standard input.")
