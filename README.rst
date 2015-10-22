@@ -1,9 +1,10 @@
 datemangler
 ===========
 
-| This script modifies the last four bits of an NTFS timestamp to hide
-  information.
-| Data entered is encrypted with AES.
+This script modifies the last four bits of an NTFS timestamp to hide
+information.
+
+Data entered is encrypted with AES.
 
 Installation
 ------------
@@ -13,15 +14,13 @@ Get the latest version with ``pip install datemangler``.
 Notes about Dependencies
 ------------------------
 
-| This program requires the ``xattr`` package to function which will
-  only install
-| if the development files for ``libffi`` are installed. Use
-  ``sudo apt-get install libffi-dev`` on Debian/Ubuntu before installing
-  ``xattr`` or this package.
+This program requires the ``xattr`` package to function which will
+only install if the development files for ``libffi`` are installed. Use
+``sudo apt-get install libffi-dev`` on Debian/Ubuntu before installing
+``xattr`` or this package.
 
-| The datemangler package is a universal package that is compatible with
-  both
-| python 2 and 3.
+The datemangler package is a universal package that is compatible with
+both python 2 and 3.
 
 Usage example
 -------------
