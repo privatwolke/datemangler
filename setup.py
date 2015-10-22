@@ -9,7 +9,7 @@ version = '0.2.1'
 setup(name = 'datemangler',
 	version = version,
 	description = 'This script modifies the last four bits of an NTFS timestamp to hide information.',
-	long_description = open('README.md', 'r').read(),
+	long_description = open('README.rst', 'r').read(),
 	keywords = 'NTFS encryption meta stenography hidden AES',
 	classifiers = [
 		'Development Status :: 4 - Beta',
