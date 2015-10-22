@@ -35,10 +35,10 @@ def main():
 	else:
 
 		if (os.path.isfile(args["path"])):
-			print(dm.write(args["path"], args["input"], getpass.getpass()))
+			dm.write(args["path"], args["input"], getpass.getpass())
 
 		else:
-			print(dm.write_directory(args["path"], args["input"], getpass.getpass()))
+			dm.write_directory(args["path"], args["input"], getpass.getpass())
 
 
 if __name__ == "__main__":

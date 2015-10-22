@@ -1,7 +1,10 @@
 #!/usr/bin/python
 # coding: utf-8
 
+from __future__ import print_function
+
 import os
+import sys
 import xattr
 
 try:
@@ -58,13 +61,20 @@ class DateMangler:
 
 	def write(self, file, bytes, password):
 		attributes = xattr.xattr(file)
-		crtime = attributes.get("system.ntfs_crtime")
-		attributes.set("system.ntfs_crtime", crtime[:4] + self.encrypt(bytes[:4], password))
+		try:
+			crtime = attributes.get("system.ntfs_crtime")
+			attributes.set("system.ntfs_crtime", crtime[:4] + self.encrypt(bytes[:4], password))
+		except IOError:
+			print("Cannot access NTFS attributes. Are you on an NTFS volume?", file = sys.stderr)
 
 
 	def read(self, file, password):
 		attributes = xattr.xattr(file)
-		return self.decrypt(attributes.get("system.ntfs_crtime")[-4:], password)
+		try:
+			crtime = attributes.get("system.ntfs_crtime")
+			return self.decrypt(crtime[-4:], password)
+		except IOError:
+			print("Cannot access NTFS attributes. Are you on an NTFS volume?", file = sys.stderr)
 
 
 	def read_directory(self, path, password):
