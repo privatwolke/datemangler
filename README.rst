@@ -25,7 +25,7 @@ both python 2 and 3.
 Usage example
 -------------
 
-::
+.. code-block:: shell
 
     # create test file system in a file
     $ truncate --size 20M volume
