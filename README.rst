@@ -1,4 +1,4 @@
-datemangler
+FOO! datemangler
 ===========
 
 This script modifies the last four bits of an NTFS timestamp to hide
