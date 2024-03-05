@@ -1,45 +1,57 @@
 #!/usr/bin/env python
-# coding: utf-8
 
-from __future__ import print_function
-
-import os
 import argparse
 import getpass
+from base64 import urlsafe_b64encode
+from pathlib import Path
 
-try:
-	from StringIO import StringIO
-except ImportError:
-	from io import StringIO
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-from datemangler import DateMangler
+import datemangler
+
 
 def main():
-	parser = argparse.ArgumentParser(description = "Hide and retrieve data in NTFS timestamps. If no input is given, the program reads from standard input.")
-	parser.add_argument("mode", choices = ["read", "write"], help = "read or write data to a file or directory of files")
-	parser.add_argument("path", help = "single file or directory of files")
-	parser.add_argument("-R", dest = "recursive", action = "store_true", help = "handle directories recursively")
-	parser.add_argument("-i", dest = "input", help = "input to be hidden")
-	args = vars(parser.parse_args())
+    parser = argparse.ArgumentParser(description='Hide and retrieve data in NTFS timestamps. If no input is given, the program reads from standard input.')
+    parser.add_argument('mode', choices=['read', 'write'], help='read or write data to a file or directory of files')
+    parser.add_argument('path', help='single file or directory of files')
+    parser.add_argument('-R', dest='recursive', action='store_true', help='handle directories recursively')
+    parser.add_argument('-i', dest='input', help='input to be hidden')
+    parser.add_argument('-l', dest='payload_length', help='length of the payload to be read')
+    args = vars(parser.parse_args())
 
-	dm = DateMangler()
+    salt = getpass.getpass(prompt='Salt: ')
 
-	if (args["mode"] == "read"):
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=bytes.fromhex(salt),
+        iterations=480000,
+    )
 
-		if (os.path.isfile(args["path"])):
-			print(dm.read(args["path"], getpass.getpass()))
+    password = getpass.getpass(prompt='Password: ')
+    cipher = Cipher(algorithms.AES(kdf.derive(password.encode('utf-8'))), modes.CTR(bytes.fromhex(salt)))
 
-		elif (os.path.isdir(args["path"])):
-			print(dm.read_directory(args["path"], getpass.getpass()))
+    path = Path(args['path'])
 
-	else:
+    if args['mode'] == 'read':
 
-		if (os.path.isfile(args["path"])):
-			dm.write(args["path"], args["input"], getpass.getpass())
+        if path.is_file():
+            print(datemangler.read(path, cipher))
 
-		else:
-			dm.write_directory(args["path"], args["input"], getpass.getpass())
+        elif path.is_dir():
+            print(datemangler.read_directory(path, cipher, int(args['payload_length'])))
+
+    else:
+        if path.is_file():
+            datemangler.write(path, args['input'], cipher)
+
+        elif path.is_dir():
+            datemangler.write_directory(path, args['input'], cipher)
+            print(f'Payload length was {len(args["input"])}')
 
 
-if __name__ == "__main__":
-	main()
+if __name__ == '__main__':
+    main()
